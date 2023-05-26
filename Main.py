@@ -1,5 +1,6 @@
 import openai
 from sense_emu import SenseHat
+from gtts import gTTS
 openai.api_key_path = "API-Key.txt"
 
 #sends a prompt to chatgpt
@@ -18,9 +19,21 @@ def prompt_is_not_safe(prompt):
 
 sense = SenseHat()
 
-userPrompt = input("> ")
-answer = get_answer(userPrompt)
-responseMessage = answer['choices'][0]['message']
-print(answer)
+while True:
 
-sense.show_message(responseMessage['content'])
+	userPrompt = input("> ")
+	try:
+		answer = get_answer(userPrompt)
+	except:
+		sense.show_message('Rate limit hit. wait a minute and try again')
+	else:
+		responseMessage = answer['choices'][0]['message']
+		# print(answer)
+		print(responseMessage['content'])
+
+		# TTS
+		tts = gTTS(responseMessage['content'], 'com', 'da')
+		tts.save('test.mp3')
+
+		# Sense hat
+		sense.show_message(responseMessage['content'])
