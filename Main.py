@@ -1,7 +1,13 @@
 import openai
-from sense_emu import SenseHat
+from sense_hat import SenseHat
 from gtts import gTTS
+import sounddevice as sd
+import soundfile as sf
+from pydub import AudioSegment
+
 openai.api_key_path = "API-Key.txt"
+
+sd.default.samplerate = 44100
 
 #sends a prompt to chatgpt
 def get_answer(prompt):
@@ -34,6 +40,13 @@ while True:
 		# TTS
 		tts = gTTS(responseMessage['content'], 'com', 'da')
 		tts.save('test.mp3')
+
+		audio = AudioSegment.from_mp3("test.mp3")
+		audio.export("test.wav", format="wav")
+
+		data, fs = sf.read('test.wav')
+		sd.play(data, fs)
+		sd.wait()
 
 		# Sense hat
 		sense.show_message(responseMessage['content'])
